@@ -57,7 +57,7 @@ parser.add_argument('--train', action='store_true',
 parser.add_argument('--test', action='store_true',
                     help='test a [pre]trained model on new images')
 parser.add_argument('-t', '--transfer-learning', action='store_true',
-                    help='transfer learning enabled - train only the last FC layer.')
+                    help='transfer learning enabled + fine tuning - train only the last FC layer.')
 parser.add_argument('--pretrained', dest='pretrained', action='store_true',
                     help='use pre-trained model')
 parser.add_argument('--world-size', default=1, type=int,
@@ -93,8 +93,11 @@ def main():
         pass
 
     # can we use CUDA?
-    cuda = torch.cuda.is_available()
+    cuda = False #torch.cuda.is_available()
     print ("=> using cuda: {cuda}".format(cuda=cuda))
+    # Not working on FloydHub
+    # if torch.cuda.device_count() is not None:
+    #     print ("=> available cuda devices: {dev}").format(dev=torch.cuda.device_count())
     # Distributed Training?
     args.distributed = args.world_size > 1
     print ("=> distributed training: {dist}".format(dist=args.distributed))
@@ -108,6 +111,7 @@ def main():
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
+    # Size on model
     if args.arch.startswith('inception'):
         size = (299, 299)
     else:
@@ -132,9 +136,15 @@ def main():
     else:
         train_sampler = None
 
+    # Pin memory
+    if cuda:
+        pin_memory = True
+    else:
+        pin_memory = False
+
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
-        num_workers=args.workers, pin_memory=True, sampler=train_sampler)
+        num_workers=args.workers, pin_memory=pin_memory, sampler=train_sampler)
 
     # Validate -> Preprocessing -> Tensor
     val_loader = torch.utils.data.DataLoader(
@@ -145,7 +155,7 @@ def main():
             normalize,
         ])),
         batch_size=args.batch_size, shuffle=False,
-        num_workers=args.workers, pin_memory=True)
+        num_workers=args.workers, pin_memory=pin_memory)
 
     if args.test:
         # Testing -> Preprocessing -> Tensor
@@ -157,7 +167,7 @@ def main():
                 normalize,
             ]), loader=pil_loader),
             batch_size=1, shuffle=False,
-            num_workers=args.workers, pin_memory=True)
+            num_workers=args.workers, pin_memory=pin_memory)
     ############ BUILD MODEL ############
     if args.distributed:
         dist.init_process_group(backend=args.dist_backend, init_method=args.dist_url,
@@ -171,7 +181,7 @@ def main():
         # quit()
     else:
         print("=> creating model '{}'".format(args.arch))
-        model = models.__dict__[args.arch]()
+        model = models.__dict__[args.arch](num_classes=labels)
         # print(model)
 
     # Freeze model, train only the last FC layer for the transfered task
@@ -181,7 +191,7 @@ def main():
         for param in model.parameters():
             param.requires_grad = False
         # Fine Tuning the last Layer For the new task
-        # RESNET & INCEPTION
+        # RESNET
         if args.arch.startswith('resnet'):
             num_ftrs = model.fc.in_features
             model.fc = nn.Linear(num_ftrs, labels)
@@ -199,15 +209,17 @@ def main():
             parameters = model.classifier.parameters()
             # print(model)
             # quit()
+        # INCEPTION
         elif args.arch.startswith('inception'):
             # Auxiliary Fc layer
             num_ftrs = model.AuxLogits.fc.in_features
             model.AuxLogits.fc = nn.Linear(num_ftrs, labels)
-            parameters = model.AuxLogits.fc.parameters()
+            # parameters = model.AuxLogits.fc.parameters()
+            # print (parameters)
             # Last layer
             num_ftrs = model.fc.in_features
             model.fc = nn.Linear(num_ftrs, labels)
-            parameters += model.fc.parameters()
+            parameters = model.fc.parameters()
             # print(model)
             # quit()
         else:
@@ -216,16 +228,20 @@ def main():
     else:
         parameters = model.parameters()
 
-    # Set [Distributed]DataParallel only on GPU[s] devices
-    if cuda:
-        # Local or Distributed Enviroment
-        if not args.distributed:
-            if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
-                model.features = torch.nn.DataParallel(model.features)
-            else:
-                model = torch.nn.DataParallel(model)
-        else:
-            model = torch.nn.parallel.DistributedDataParallel(model)
+    # Not working on FloydHub
+    # if torch.cuda.device_count() is not None:
+    #     # Set [Distributed]DataParallel only on more than 1 cuda(GPUs) devices
+    #     if cuda and torch.cuda.device_count() > 1:
+    #         # Local or Distributed Enviroment
+    #         if not args.distributed:
+    #             print("=> load model on '{}' cuda devices".format(torch.cuda.device_count()))
+    #             if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
+    #                 model.features = torch.nn.DataParallel(model.features)
+    #             else:
+    #                 model = torch.nn.DataParallel(model)
+    #         else:
+    #             print("=> load model on on distributed enviroment".format(torch.cuda.device_count()))
+    #             model = torch.nn.parallel.DistributedDataParallel(model)
 
     # Define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -252,12 +268,10 @@ def main():
             optimizer.load_state_dict(checkpoint['optimizer'])
             print("=> loaded checkpoint '{}' (epoch {})"
                   .format(args.resume, checkpoint['epoch']))
-            # if not cuda:
-            #     model.cpu()
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
-    # Load model on GPU
+    # Load model on GPU or CPU
     if cuda:
         model.cuda()
     else:
@@ -287,18 +301,20 @@ def main():
                 train_sampler.set_epoch(epoch)
             adjust_learning_rate(optimizer, epoch)
 
-            # train for one epoch
+            # Train for one epoch
             train(train_loader, model, criterion, optimizer, epoch)
 
-            # evaluate on validation set
+            # Evaluate on validation set
             prec1 = validate(val_loader, model, criterion)
+            # print (prec1)
 
-            print (prec1)
-            # remember best prec@1 and save checkpoint
+            # Remember best prec@1 and save checkpoint
             if cuda:
                 prec1 = prec1.cpu() # Load on CPU if CUDA
-            is_best = bool(prec1.numpy() > best_prec1.numpy()) # Get bool not ByteTensor
-            best_prec1 = torch.FloatTensor(max(prec1.numpy(), best_prec1.numpy())) # Get greater Tensor
+            # Get bool not ByteTensor
+            is_best = bool(prec1.numpy() > best_prec1.numpy())
+            # Get greater Tensor
+            best_prec1 = torch.FloatTensor(max(prec1.numpy(), best_prec1.numpy()))
             save_checkpoint({
                 'epoch': epoch + 1,
                 'arch': args.arch,
@@ -325,13 +341,13 @@ def train(train_loader, model, criterion, optimizer, epoch):
         data_time.update(time.time() - end)
         if cuda:
             input, target = input.cuda(async=True), target.cuda(async=True)
-        # print (input, target)
+
         input_var = torch.autograd.Variable(input)
         target_var = torch.autograd.Variable(target)
 
         # compute output
         output = model(input_var)
-        topk = (1,5) if labels >= 100 else (1,) # TO FIX
+        #topk = (1,5) if labels >= 100 else (1,) # TO FIX
         # For nets that have multiple outputs such as Inception
         if isinstance(output, tuple):
             loss = sum((criterion(o,target_var) for o in output))
@@ -346,12 +362,6 @@ def train(train_loader, model, criterion, optimizer, epoch):
             top1.update(prec1[0], input.size(0))
             losses.update(loss.data[0], input.size(0))
 
-        # measure accuracy and record loss
-        #prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
-        # losses.update(loss.data[0], input.size(0))
-        # top1.update(prec1[0], input.size(0))
-        #top5.update(prec5[0], input.size(0))
-
         # compute gradient and do SGD step
         optimizer.zero_grad()
         loss.backward()
@@ -361,16 +371,17 @@ def train(train_loader, model, criterion, optimizer, epoch):
         batch_time.update(time.time() - end)
         end = time.time()
 
-        # print (top1.val, top1.avg, type(top1))
-
-        # if i % args.print_freq == 0:
-        #     print('Epoch: [{0}][{1}/{2}]\t'
-        #           'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-        #           'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-        #           'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-        #           'Prec@1 {top1.val:.3f} ({top1.avg:.3f})'.format(
-        #            epoch, i, len(train_loader), batch_time=batch_time,
-        #            data_time=data_time, loss=losses, top1=top1))
+        # Info log every args.print_freq
+        if i % args.print_freq == 0:
+            print('Epoch: [{0}][{1}/{2}]\t'
+                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                  'Prec@1 {top1_val} ({top1_avg})'.format(
+                   epoch, i, len(train_loader), batch_time=batch_time,
+                   data_time=data_time, loss=losses,
+                   top1_val=numpy.asscalar(top1.val.cpu().numpy()),
+                   top1_avg=numpy.asscalar(top1.avg.cpu().numpy())))
 
 
 def validate(val_loader, model, criterion):
@@ -391,12 +402,10 @@ def validate(val_loader, model, criterion):
         input_var = torch.autograd.Variable(input, volatile=True)
         target_var = torch.autograd.Variable(target, volatile=True)
 
-        if args.arch.startswith('inception') and input.size(0) != 4:
-            continue
         # compute output
         output = model(input_var)
         # print ("Output: ", output)
-        topk = (1,5) if labels >= 100 else (1,) # TO FIX
+        #topk = (1,5) if labels >= 100 else (1,) # TODO: add more topk evaluation
         # For nets that have multiple outputs such as Inception
         if isinstance(output, tuple):
             loss = sum((criterion(o,target_var) for o in output))
@@ -411,48 +420,47 @@ def validate(val_loader, model, criterion):
             top1.update(prec1[0], input.size(0))
             losses.update(loss.data[0], input.size(0))
 
-        # measure accuracy and record loss
-        #prec1, prec5 = accuracy(output.data, target, topk=(1, 5))
-        # losses.update(loss.data[0], input.size(0))
-        # top1.update(prec1[0], input.size(0))
-        #top5.update(prec5[0], input.size(0))
-
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
 
         # Info log every args.print_freq
-        # if i % args.print_freq == 0:
-        #     print('Test: [{0}/{1}]\t'
-        #           'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-        #           'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-        #           'Prec@1 {top1.val:.3f} ({top1.avg:.3f})'.format(
-        #            i, len(val_loader), batch_time=batch_time, loss=losses,
-        #            top1=top1))
+        if i % args.print_freq == 0:
+            print('Test: [{0}/{1}]\t'
+                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                  'Prec@1 {top1_val} ({top1_avg})'.format(
+                   i, len(val_loader), batch_time=batch_time,
+                   loss=losses,
+                   top1_val=numpy.asscalar(top1.val.cpu().numpy()),
+                   top1_avg=numpy.asscalar(top1.avg.cpu().numpy())))
 
-    # print(' * Prec@1 {top1}'
-    #       .format(top1=top1))
-
+    print(' * Prec@1 {top1}'
+          .format(top1=numpy.asscalar(top1.avg.cpu().numpy())))
     return top1.avg
 
+
 def test(test_loader, model, names, classes):
-    """Test the model on the Evaluation Folder"""
+    """Test the model on the Evaluation Folder
+
+    Args:
+        - classes: is a list with the class name
+        - names: is a generator to retrieve the filename that is classified
+    """
     # switch to evaluate mode
     model.eval()
     # Evaluate all the validation set
-    for i, (input, target) in enumerate(test_loader):
+    for i, (input, _) in enumerate(test_loader):
         if cuda:
-            input, target = input.cuda(async=True), target.cuda(async=True)
+            input = input.cuda(async=True)
         input_var = torch.autograd.Variable(input, volatile=True)
-        target_var = torch.autograd.Variable(target, volatile=True)
 
-        # if args.arch.startswith('inception') and input.size(0) != 4:
-        #     continue
         # compute output
         output = model(input_var)
         # Take last layer output
         if isinstance(output, tuple):
             output = output[len(output)-1]
+
         # print (output.data.max(1, keepdim=True)[1])
         lab = classes[numpy.asscalar(output.data.max(1, keepdim=True)[1].cpu().numpy())]
         print ("Images: " + next(names) + ", Classified as: " + lab)
