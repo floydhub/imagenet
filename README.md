@@ -60,7 +60,7 @@ optional arguments:
 
 ## ImageNet models Architecture
 
-#### alexnet
+#### Alexnet
 
 ![alexnet architecture](images/alexnet.png)
 
@@ -72,25 +72,25 @@ Credit: [Imagenet classification with deep convolutional neural networks paper](
 
 Credit: [Densely Connected Convolutional Networks](https://arxiv.org/pdf/1608.06993.pdf)
 
-#### inception_v3
+#### Inception_v3
 
 ![inception_v3 architecture](images/inceptionv3.png)
 
 Credit: [Rethinking the Inception Architecture for Computer Vision paper](https://arxiv.org/pdf/1512.00567.pdf) (image taken from [google research blog](https://research.googleblog.com/2016/08/improving-inception-and-image.html))
 
-#### resnet34
+#### Resnet34
 
 ![Resnet architecture](images/resnet.png)
 
 Credit: [Deep Residual Learning for Image Recognition paper](https://arxiv.org/pdf/1512.03385v1.pdf)
 
-#### squeezenet1_0
+#### Squeezenet1_0
 
 ![Squeezenet architecture](images/squeezenet.png)
 
 Credit: [Squeezenet: Alexnet-level accuracy with 50x fewer parameters and <0.5MB model size](https://arxiv.org/pdf/1602.07360.pdf)
 
-#### vgg19net
+#### Vgg19net
 
 ![vgg19 architecture](images/vgg19.png)
 
