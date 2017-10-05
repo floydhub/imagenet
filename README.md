@@ -60,12 +60,41 @@ optional arguments:
 
 ## ImageNet models Architecture
 
-- alexnet
-- densenet
-- inception_v3
-- resnet
-- squeezenet1_0
-- vggnet
+#### alexnet
+
+![alexnet architecture](images/alexnet.png)
+
+Credit: [Imagenet classification with deep convolutional neural networks paper](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)
+
+#### densenet
+
+![densenet architecture](images/densenet.png)
+
+Credit: [Densely Connected Convolutional Networks](https://arxiv.org/pdf/1608.06993.pdf)
+
+#### inception_v3
+
+![inception_v3 architecture](images/inceptionv3.png)
+
+Credit: [Rethinking the Inception Architecture for Computer Vision paper](https://arxiv.org/pdf/1512.00567.pdf) (image taken from [google research blog](https://research.googleblog.com/2016/08/improving-inception-and-image.html))
+
+#### resnet34
+
+![Resnet architecture](images/resnet.png)
+
+Credit: [Deep Residual Learning for Image Recognition paper](https://arxiv.org/pdf/1512.03385v1.pdf)
+
+#### squeezenet1_0
+
+![Squeezenet architecture](images/squeezenet.png)
+
+Credit: [Squeezenet: Alexnet-level accuracy with 50x fewer parameters and <0.5MB model size](https://arxiv.org/pdf/1602.07360.pdf)
+
+#### vgg19net
+
+![vgg19 architecture](images/vgg19.png)
+
+Credit: [Very Deep Convolutional Networks For Large-Scale Image Recognition paper](https://arxiv.org/pdf/1409.1556v6.pdf) (image taken from Resnet paper)
 
 ## ImageNet training in PyTorch
 
@@ -179,7 +208,7 @@ A full training on Imagenet *can takes weeks* according to the selected model.
 
 This project implements the a Transfer Learning classification task on the [Bees Vs Ants](https://download.pytorch.org/tutorial/hymenoptera_data.zip) toy dataset(train: 124 images of ants and 121 images of bees, val: 70 images of ants and 83 images of bees) with different Convolutional Neural Network(CNN or ConvNet) models. This is a porting of the [transfer learning tutorial from the official PyTorch Docs](http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) making it usables on [FloydHub](https://www.floydhub.com).
 
-Credits goes to [Sasank Chilamkurthy](https://chsasank.github.io/) who has written the amazing tutorial on transfer learning in the PyTorch docs.
+Credit: [Sasank Chilamkurthy](https://chsasank.github.io/) who has written the amazing tutorial on transfer learning in the PyTorch docs.
 
 ### Run on FloydHub
 
