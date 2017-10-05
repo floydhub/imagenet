@@ -66,7 +66,7 @@ optional arguments:
 
 Credit: [Imagenet classification with deep convolutional neural networks paper](https://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf)
 
-#### densenet
+#### Densenet
 
 ![densenet architecture](images/densenet.png)
 
@@ -257,7 +257,7 @@ Notes:
 We have provided to you a pre-trained model trained for 30 epochs with an accuracy of about 95%.
 
 ```bash
-floyd run --gpu --env pytorch-0.2 --data redeipirati/datasets/pytorch-hymenoptera/1:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model "python main.py -a resnet18 --test --fine-tuning  --evalf test/ --resume /model/model_best.pth.tar"
+floyd run --gpu --env pytorch-0.2 --data redeipirati/datasets/pytorch-hymenoptera/1:input --data redeipirati/datasets/pytorch-hymenoptera-30-epochs-resnet18-model/1:model "python main.py -a resnet18 --test --fine-tuning  --evalf test/ --resume /model/model_best.pth.tar"
 ```
 
 #### Serving
