@@ -56,8 +56,8 @@ parser.add_argument('--train', action='store_true',
                     help='train the model')
 parser.add_argument('--test', action='store_true',
                     help='test a [pre]trained model on new images')
-parser.add_argument('-t', '--transfer-learning', action='store_true',
-                    help='transfer learning enabled + fine tuning - train only the last FC layer.')
+parser.add_argument('-t', '--fine-tuning', action='store_true',
+                    help='transfer learning + fine tuning - train only the last FC layer.')
 parser.add_argument('--pretrained', dest='pretrained', action='store_true',
                     help='use pre-trained model')
 parser.add_argument('--world-size', default=1, type=int,
@@ -176,7 +176,7 @@ def main():
     # Create model from scratch or use a pretrained one
     if args.pretrained:
         print("=> using pre-trained model '{}'".format(args.arch))
-        model = models.__dict__[args.arch](pretrained=True)
+        model = models.__dict__[args.arch](num_classes=labels, pretrained=True)
         # print(model)
         # quit()
     else:
@@ -185,9 +185,9 @@ def main():
         # print(model)
 
     # Freeze model, train only the last FC layer for the transfered task
-    if args.transfer_learning:
-        print("=> transfer-learning mode (train only the last FC layer)")
-        # Freeze
+    if args.fine_tuning:
+        print("=> transfer-learning mode + fine-tuning (train only the last FC layer)")
+        # Freeze Previous Layers(now we are using them as features extractor)
         for param in model.parameters():
             param.requires_grad = False
         # Fine Tuning the last Layer For the new task
@@ -223,7 +223,7 @@ def main():
             # print(model)
             # quit()
         else:
-            print("Error: Transfer-learning is not supported on this architecture.")
+            print("Error: Fine-tuning is not supported on this architecture.")
             exit(-1)
     else:
         parameters = model.parameters()

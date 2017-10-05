@@ -44,8 +44,8 @@ optional arguments:
   -e, --evaluate        evaluate model on validation set
   --train               train the model
   --test                test a [pre]trained model on new images
-  -t, --transfer-learning
-                        transfer learning enabled - train only the last FC
+  -t, --fine-tuning
+                        transfer learning enabled + fine tuning - train only the last FC
                         layer.
   --pretrained          use pre-trained model
   --world-size WORLD_SIZE
@@ -67,7 +67,8 @@ optional arguments:
 
 ## ImageNet training in PyTorch
 
-![imagenet dataset](images/)
+![imagenet dataset tsne visualization](images/cnntsne.jpeg)
+*Credit: [karpathy.github.io](http://karpathy.github.io/2014/09/02/what-i-learned-from-competing-against-a-convnet-on-imagenet/)*
 
 This project implements the ImageNet classification task on [ImageNet](http://www.image-net.org/) dataset with different famous Convolutional Neural Network(CNN or ConvNet) models. This is a porting of [pytorch/examples/imagenet](https://github.com/pytorch/examples/tree/master/imagenet) making it usables on [FloydHub](https://www.floydhub.com).
 
@@ -198,7 +199,7 @@ I have already uploaded it as FloydHub dataset so that you can try and familiari
 **Note**: If you want to mount/create a dataset [look at the docs](https://docs.floydhub.com/guides/create_and_upload_dataset/).
 
 ```bash
-floyd run --gpu --env pytorch-0.2 --data redeipirati/datasets/pytorch-hymenoptera/1:input "python main.py -a resnet18 --train --transfer-learning --pretrained --epochs 10 -b 4"
+floyd run --gpu --env pytorch-0.2 --data redeipirati/datasets/pytorch-hymenoptera/1:input "python main.py -a resnet18 --train --fine-tuning --pretrained --epochs 10 -b 4"
 ```
 
 Note:
@@ -207,12 +208,13 @@ Note:
 - `--env pytorch-0.2` prepares a pytorch environment for python 3.
 - `--data redeipirati/datasets/pytorch-hymenoptera/1` mounts the pytorch hymenoptera dataset(bees vs ants) in the /input folder inside the container for our job so that we do not need to dowload it at training time.
 
+The training should take about 15' on a GPU istance.
 
 #### Evaluating
 
 It's time to evaluate our model with some images:
 ```bash
-floyd run --gpu --env pytorch-0.2 --data redeipirati/datasets/pytorch-hymenoptera/1:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model "python main.py -a resnet18 --test --transfer-learning  --evalf test/ --resume /model/model_best.pth.tar"
+floyd run --gpu --env pytorch-0.2 --data redeipirati/datasets/pytorch-hymenoptera/1:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model "python main.py -a resnet18 --test --fine-tuning  --evalf test/ --resume /model/model_best.pth.tar"
 ```
 
 Notes:
@@ -224,7 +226,7 @@ Notes:
 We have provided to you a pre-trained model trained for 30 epochs with an accuracy of about 95%.
 
 ```bash
-floyd run --gpu --env pytorch-0.2 --data redeipirati/datasets/pytorch-hymenoptera/1:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model "python main.py -a resnet18 --test --transfer-learning  --evalf test/ --resume /model/model_best.pth.tar"
+floyd run --gpu --env pytorch-0.2 --data redeipirati/datasets/pytorch-hymenoptera/1:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model "python main.py -a resnet18 --test --fine-tuning  --evalf test/ --resume /model/model_best.pth.tar"
 ```
 
 #### Serving
@@ -258,7 +260,17 @@ Any job running in serving mode will stay up until it reaches maximum runtime. S
 
 Some useful resources on ImageNet and the famous ConvNet models:
 
-- [resource]()
+- [ILSVRC(Imagenet Large Scale Visual Recognition Challenge)](http://www.image-net.org/challenges/LSVRC/)
+- [Karpathy CNN and ImageNet](http://karpathy.github.io/2014/09/02/what-i-learned-from-competing-against-a-convnet-on-imagenet/)
+- [CS231n CNN](http://cs231n.github.io/convolutional-networks/)
+- [CS231n understanding cnn](http://cs231n.github.io/understanding-cnn/)
+- [CS231n transfer learning](http://cs231n.github.io/transfer-learning/)
+- [FloydHub Building your first CNN](https://blog.floydhub.com/building-your-first-convnet/)
+- [Inception v3](https://research.googleblog.com/2016/08/improving-inception-and-image.html)
+- [How does Deep Residual Net work?](https://www.quora.com/How-does-deep-residual-learning-work)
+- [How does Inception module work?](https://www.quora.com/How-does-the-Inception-module-work-in-GoogLeNet-deep-architecture)
+- [Squeezenet](http://www.kdnuggets.com/2016/09/deep-learning-reading-group-squeezenet.html)
+- [Famous CNN models KDnuggets explained](http://www.kdnuggets.com/2016/09/9-key-deep-learning-papers-explained.html/)
 
 ## Contributing
 
