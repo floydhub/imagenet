@@ -5,7 +5,9 @@ This project implements:
 - [Transfer learning](#transfer-learning) from the most popular model architectures of above, fine tuning only the last fully connected layer.
 
 *Note*:
-**Transfer-learning** was fully tested on alexnet, densenet121, inception_v3, resnet18 and vgg19. The other models will be test in the next release.
+
+- **ImageNet training** will be documeted in the next release.
+- **Transfer-learning** was fully tested on alexnet, densenet121, inception_v3, resnet18 and vgg19. The other models will be tested in the next release.
 
 ## Usage
 
@@ -165,16 +167,17 @@ floyd run --gpu --data <your_user_name>/datasets/imagenet/<version>:input "pytho
 
 **Note**:
 
-A full Training on Imagenet can takes week according to the selected model.
+A full training on Imagenet *can takes weeks* according to the selected model.
 
 #### Evaluating & Serving
-Soon.
+
+*Soon.*
 
 ## Transfer Learning
 
 ![Bees Vs Ants dataset](images/ant_bee.png)
 
-This project implements the a Transfer Learning classification task on the [Bees Vs Ants](http://www.image-net.org/) toy dataset(train: 124 images of ants and 121 images of bees, val: 70 images of ants and 83 images of bees) with different Convolutional Neural Network(CNN or ConvNet) models. This is a porting of the [transfer learning tutorial from the official PyTorch Docs](http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) making it usables on [FloydHub](https://www.floydhub.com).
+This project implements the a Transfer Learning classification task on the [Bees Vs Ants](https://download.pytorch.org/tutorial/hymenoptera_data.zip) toy dataset(train: 124 images of ants and 121 images of bees, val: 70 images of ants and 83 images of bees) with different Convolutional Neural Network(CNN or ConvNet) models. This is a porting of the [transfer learning tutorial from the official PyTorch Docs](http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) making it usables on [FloydHub](https://www.floydhub.com).
 
 Credits goes to [Sasank Chilamkurthy](https://chsasank.github.io/) who has written the amazing tutorial on transfer learning in the PyTorch docs.
 
