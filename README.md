@@ -1,8 +1,8 @@
 # Traning and Transfer Learning ImageNet model in Pytorch
 
 This project implements:
-- [TRAINING of popular](# ImageNet training in PyTorch) model architectures, such as ResNet, AlexNet, and VGG on the ImageNet dataset;
-- [TRANSFER LEARNING](# Transfer Learning) from the most popular model architectures of above, fine tuning only the last fully connected layer.
+- [TRAINING of popular](#imagenet-training-in-pytorch) model architectures, such as ResNet, AlexNet, and VGG on the ImageNet dataset;
+- [TRANSFER LEARNING](#transfer-learning) from the most popular model architectures of above, fine tuning only the last fully connected layer.
 
 *Note*:
 **Transfer-learning** was fully tested on alexnet, densenet121, inception_v3, resnet18 and vgg19. The other models will be test in the next release.
@@ -172,9 +172,9 @@ Soon.
 
 ## Transfer Learning
 
-![Bees Vs Ants dataset](images/)
+![Bees Vs Ants dataset](images/ant_bee.png)
 
-This project implements the a Transfer Learning classification task on the [Bees Vs Ants](http://www.image-net.org/) toy dataset with different Convolutional Neural Network(CNN or ConvNet) models. This is a porting of the [transfer learning tutorial from the official PyTorch Docs](http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) making it usables on [FloydHub](https://www.floydhub.com).
+This project implements the a Transfer Learning classification task on the [Bees Vs Ants](http://www.image-net.org/) toy dataset(train: 124 images of ants and 121 images of bees, val: 70 images of ants and 83 images of bees) with different Convolutional Neural Network(CNN or ConvNet) models. This is a porting of the [transfer learning tutorial from the official PyTorch Docs](http://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html) making it usables on [FloydHub](https://www.floydhub.com).
 
 Credits goes to [Sasank Chilamkurthy](https://chsasank.github.io/) who has written the amazing tutorial on transfer learning in the PyTorch docs.
 
@@ -208,8 +208,6 @@ Note:
 - `--gpu` run your job on a FloydHub GPU instance
 - `--env pytorch-0.2` prepares a pytorch environment for python 3.
 - `--data redeipirati/datasets/pytorch-hymenoptera/1` mounts the pytorch hymenoptera dataset(bees vs ants) in the /input folder inside the container for our job so that we do not need to dowload it at training time.
-
-The training should take about 15' on a GPU istance.
 
 #### Evaluating
 
