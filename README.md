@@ -1,8 +1,8 @@
 # Traning and Transfer Learning ImageNet model in Pytorch
 
 This project implements:
-- [TRAINING of popular](## ImageNet training in PyTorch) model architectures, such as ResNet, AlexNet, and VGG on the ImageNet dataset;
-- [TRANSFER LEARNING]() from the most popular model architectures of above, fine tuning only the last fully connected layer.
+- [TRAINING of popular](# ImageNet training in PyTorch) model architectures, such as ResNet, AlexNet, and VGG on the ImageNet dataset;
+- [TRANSFER LEARNING](# Transfer Learning) from the most popular model architectures of above, fine tuning only the last fully connected layer.
 
 *Note*:
 **Transfer-learning** was fully tested on alexnet, densenet121, inception_v3, resnet18 and vgg19. The other models will be test in the next release.
@@ -68,6 +68,7 @@ optional arguments:
 ## ImageNet training in PyTorch
 
 ![imagenet dataset tsne visualization](images/cnntsne.jpeg)
+
 *Credit: [karpathy.github.io](http://karpathy.github.io/2014/09/02/what-i-learned-from-competing-against-a-convnet-on-imagenet/)*
 
 This project implements the ImageNet classification task on [ImageNet](http://www.image-net.org/) dataset with different famous Convolutional Neural Network(CNN or ConvNet) models. This is a porting of [pytorch/examples/imagenet](https://github.com/pytorch/examples/tree/master/imagenet) making it usables on [FloydHub](https://www.floydhub.com).
