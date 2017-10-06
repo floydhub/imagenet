@@ -198,7 +198,20 @@ floyd run --gpu --data <your_user_name>/datasets/imagenet/<version>:input "pytho
 
 A full training on Imagenet *can takes weeks* according to the selected model.
 
-#### Evaluating & Serving
+#### Evaluating
+
+*Soon.*
+
+#### Try Pytorch Pretrained model
+
+Pytorch provided to you pretrained model for different models, if you want to evaluate your dataset with one of this model run:
+
+```bash
+floyd run --gpu --data <your_user_name>/datasets/<test_image>/<version>:input "python main.py -a [arch] --pretrained --data /input/test [other params]"
+```
+
+
+#### Serve model through REST API
 
 *Soon.*
 
@@ -213,7 +226,6 @@ Credit: [Sasank Chilamkurthy](https://chsasank.github.io/) who has written the a
 ### Run on FloydHub
 
 Here's the commands to train and evaluate your [pretrained] model on FloydHub(these section will be improved with the next release):
-
 
 #### Project Setup
 
@@ -260,7 +272,7 @@ We have provided to you a pre-trained model trained for 30 epochs with an accura
 floyd run --gpu --env pytorch-0.2 --data redeipirati/datasets/pytorch-hymenoptera/1:input --data redeipirati/datasets/pytorch-hymenoptera-30-epochs-resnet18-model/1:model "python main.py -a resnet18 --test --fine-tuning  --evalf test/ --resume /model/model_best.pth.tar"
 ```
 
-#### Serving
+#### Serve model through REST API
 
 FloydHub supports seving mode for demo and testing purpose. Before serving your model through REST API, you need to create a `floyd_requirements.txt` and declare the flask requirement in it. If you run a job with `--mode` serve flag, FloydHub will run the app.py file in your project and attach it to a dynamic service endpoint:
 

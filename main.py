@@ -176,7 +176,7 @@ def main():
     # Create model from scratch or use a pretrained one
     if args.pretrained:
         print("=> using pre-trained model '{}'".format(args.arch))
-        model = models.__dict__[args.arch](num_classes=labels, pretrained=True)
+        model = models.__dict__[args.arch](pretrained=True)
         # print(model)
         # quit()
     else:
