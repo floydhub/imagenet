@@ -192,25 +192,25 @@ def main():
             param.requires_grad = False
         # Fine Tuning the last Layer For the new task
         # RESNET
-        if args.arch.startswith('resnet'):
+        if args.arch == 'resnet18':
             num_ftrs = model.fc.in_features
             model.fc = nn.Linear(num_ftrs, labels)
             parameters = model.fc.parameters()
             # print(model)
             # quit()
         # ALEXNET & VGG
-        elif args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
+        elif args.arch == 'alexnet' or args.arch == 'vgg19':
             model.classifier._modules['6'] = nn.Linear(4096, labels)
             parameters = model.classifier._modules['6'].parameters()
             # print(model)
             # quit()
-        elif args.arch.startswith('densenet'): # DENSENET
+        elif args.arch == 'densenet121': # DENSENET
             model.classifier = nn.Linear(1024, labels)
             parameters = model.classifier.parameters()
             # print(model)
             # quit()
         # INCEPTION
-        elif args.arch.startswith('inception'):
+        elif args.arch == 'inception_v3':
             # Auxiliary Fc layer
             num_ftrs = model.AuxLogits.fc.in_features
             model.AuxLogits.fc = nn.Linear(num_ftrs, labels)

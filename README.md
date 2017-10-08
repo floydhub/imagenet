@@ -213,7 +213,30 @@ floyd run --gpu --data <your_user_name>/datasets/<test_image>/<version>:input "p
 
 #### Serve model through REST API
 
-*Soon.*
+FloydHub supports seving mode for demo and testing purpose. Before serving your model through REST API, you need to create a `floyd_requirements.txt` and declare the flask requirement in it. If you run a job with `--mode` serve flag, FloydHub will run the app.py file in your project and attach it to a dynamic service endpoint:
+
+```bash
+floyd run --gpu --mode serve --env pytorch-0.2  --data <your_user_name>/datasets/<test_image>/<version>:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model
+```
+
+Note:
+The script retrieve the number of classes from the dataset `--data <your_user_name>/datasets/<test_image>/<version>`. This behavior will be fixed in the next release.
+
+The above command will print out a service endpoint for this job in your terminal console.
+
+The service endpoint will take a couple minutes to become ready. Once it's up, you can interact with the model by sending an image file with a POST request that the model will classify(according to ImageNet labels):
+
+```bash
+# Template
+# curl -X POST -F "file=@<IMAGE>" <SERVICE_ENDPOINT>
+
+# e.g. of a POST req
+curl -X POST -F "file=@./test/images/test01.png"  https://www.floydlabs.com/expose/BhZCFAKom6Z8RptVKskHZW
+```
+
+Any job running in serving mode will stay up until it reaches maximum runtime. So once you are done testing, **remember to shutdown the job!**
+
+*Note that this feature is in preview mode and is not production ready yet*
 
 ## Transfer Learning
 
@@ -281,7 +304,7 @@ floyd run --gpu --mode serve --env pytorch-0.2  --data redeipirati/datasets/pyto
 ```
 
 Note:
-The script retrieve the number of class from the dataset `--data redeipirati/datasets/pytorch-hymenoptera/1`. This behavior will be fixed in the next release.
+The script retrieve the number of classes from the dataset `--data redeipirati/datasets/pytorch-hymenoptera/1`. This behavior will be fixed in the next release.
 
 The above command will print out a service endpoint for this job in your terminal console.
 
