@@ -191,7 +191,7 @@ floyd run --gpu --data <your_user_name>/datasets/imagenet/<version>:input "pytho
 The default learning rate schedule starts at 0.1 and decays by a factor of 10 every 30 epochs. This is appropriate for ResNet and models with batch normalization, but too high for AlexNet and VGG. Use 0.01 as the initial learning rate for AlexNet or VGG:
 
 ```bash
-floyd run --gpu --data <your_user_name>/datasets/imagenet/<version>:input "python main.py -a alexnet --lr 0.01 [other params]"
+floyd run --gpu --data <your_user_name>/datasets/imagenet/<version>:input "python main.py -a <arch> --lr 0.01 [other params]"
 ```
 
 **Note**:
@@ -200,7 +200,9 @@ A full training on Imagenet *can takes weeks* according to the selected model.
 
 #### Evaluating
 
-*Soon.*
+It's time to evaluate our model with some images(put the images you want to classify in the `test/images` folder):
+```bash
+floyd run --gpu --env pytorch-0.2 --data <your_user_name>/datasets/imagenet/<version>:input --data <REPLACE_WITH_JOB_OUTPUT_NAME>:model "python main.py -a <arch> --test  --evalf test/ --resume /model/model_best.pth.tar"
 
 #### Try Pytorch Pretrained model
 
@@ -285,7 +287,7 @@ floyd run --gpu --env pytorch-0.2 --data redeipirati/datasets/pytorch-hymenopter
 
 Notes:
 
-- I've prepared for you some images in the test folder that you can use to evaluate your model. Feel free to add on it a bunch of bee/ant images downloaded from the web.
+- I've prepared for you some images in the `test` folder that you can use to evaluate your model. Feel free to add on it a bunch of bee/ant images downloaded from the web.
 - Remember to evaluate images which are taken from a similar distribution, otherwise you will have bad performance due to distribution mismatch.
 
 #### Try our pre-trained model
@@ -331,6 +333,7 @@ Some useful resources on ImageNet and the famous ConvNet models:
 - [CS231n CNN](http://cs231n.github.io/convolutional-networks/)
 - [CS231n understanding cnn](http://cs231n.github.io/understanding-cnn/)
 - [CS231n transfer learning](http://cs231n.github.io/transfer-learning/)
+- [An Intuitive Explanation of Convolutional Neural Networks](https://ujjwalkarn.me/2016/08/11/intuitive-explanation-convnets/)
 - [FloydHub Building your first CNN](https://blog.floydhub.com/building-your-first-convnet/)
 - [Inception v3](https://research.googleblog.com/2016/08/improving-inception-and-image.html)
 - [How does Deep Residual Net work?](https://www.quora.com/How-does-deep-residual-learning-work)
