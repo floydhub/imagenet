@@ -175,7 +175,7 @@ Before you start, log in on FloydHub with the [floyd login](http://docs.floydhub
 the project:
 
 ```bash
-$ git clone https://github.com/ReDeiPirati/imagenet.git
+$ git clone https://github.com/floydhub/imagenet.git
 $ cd imagenet
 $ floyd init imagenet
 ```
@@ -256,7 +256,7 @@ Before you start, log in on FloydHub with the [floyd login](http://docs.floydhub
 the project:
 
 ```bash
-$ git clone https://github.com/ReDeiPirati/imagenet.git
+$ git clone https://github.com/floydhub/imagenet.git
 $ cd imagenet
 $ floyd init imagenet
 ```
